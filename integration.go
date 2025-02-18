@@ -29,6 +29,13 @@ func getIntegrationJSON(c *gin.Context) {
 				"Send logs to a designated Telex channel",
 				"Monitor specific applications or services",
 			},
+			"permissions": map[string]map[string]interface{}{
+				"monitoring_user": {
+					"always_online": true,
+					"display_name":  "Performance Monitor",
+				},
+			},
+
 			"author": "Tireni",
 			"settings": []map[string]interface{}{
 				{"label": "Loki Server URL", "type": "text", "required": true, "default": "http://localhost:3100"},
