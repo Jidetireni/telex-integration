@@ -20,9 +20,10 @@ func getIntegrationJSON(c *gin.Context) {
 				"app_url":          "https://telex-integration-production.up.railway.app",
 				"background_color": "#fff",
 			},
-			"is_active":        true,
-			"integration_type": "interval",
-			"author":           "Tireni",
+			"integration_category": "Monitoring & Logging",
+			"is_active":            true,
+			"integration_type":     "interval",
+			"author":               "Tireni",
 			"key_features": []string{
 				"Fetch logs from Loki at regular intervals",
 				"Filter logs based on custom Loki queries",
