@@ -19,9 +19,6 @@ type LogRequest struct {
 	ChannelID string
 }
 
-// Create a channel to communicate between handlers
-var logChan = make(chan LogRequest)
-
 // RequestBody represents the JSON structure sent by Telex
 type RequestBody struct {
 	ChannelID string    `json:"channel_id"`
@@ -79,6 +76,9 @@ func TickHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs", "error_msg": err.Error()})
 		return
 	}
+
+	utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
+
 	c.JSON(http.StatusOK, gin.H{
 		"channel_id": reqBody.ChannelID,
 		"return_url": reqBody.ReturnURL,

@@ -70,24 +70,31 @@ func FetchLogs(lokiURL, query string, start, end time.Time, limit int) ([]string
 	return logs, nil
 }
 
-// SendLogsToTelex sends logs to Telex target_url
-func SendLogsToTelex(returnURL string, logs []string, channelID string) {
-	// Prepare response payload
-	responsePayload := map[string]interface{}{
-		"channel_id": channelID,
-		"logs":       logs,
+func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
+	// Convert payload to JSON
+	data := map[string]interface{}{
+		"message":    logs,
+		"username":   "Uptime Monitor",
+		"event_name": "Uptime Check",
+		"status":     "error",
 	}
 
-	// Convert to JSON
-	jsonPayload, _ := json.Marshal(responsePayload)
-
-	// Send response to Telex return_url
-	resp, err := http.Post(returnURL, "application/json", bytes.NewBuffer(jsonPayload))
+	jsondata, err := json.Marshal(data)
 	if err != nil {
-		log.Println("Error sending logs to Telex:", err)
-		return
+		return fmt.Errorf("failed to marshal payload: %v", err)
+	}
+
+	// Send POST request to Telex's return_url
+	resp, err := http.Post(returnURL, "application/json", bytes.NewBuffer(jsondata))
+	if err != nil {
+		return fmt.Errorf("failed to send logs to Telex: %v", err)
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("telex returned non-OK status: %s", resp.Status)
+	}
+
 	log.Printf("Logs successfully sent to Telex (%s): %v\n", returnURL, logs)
+	return nil
 }
