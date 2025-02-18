@@ -104,5 +104,5 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 	}
 
 	log.Printf("Logs successfully sent to Telex (%s): %v\n", returnURL, logs)
-	return nil
+	return err
 }
