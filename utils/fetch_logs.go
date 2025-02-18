@@ -73,24 +73,25 @@ func FetchLogs(lokiURL, query string, start, end time.Time, limit int) ([]string
 func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 	// Convert payload to JSON
 	data := map[string]interface{}{
-		"message":    logs,
-		"username":   "Uptime Monitor",
-		"event_name": "Uptime Check",
-		"status":     "error",
+		"event_name": "Loki integration",
+		"message":    "logs",
+		"status":     "success",
+		"username":   "tireni",
 	}
 
-	jsondata, err := json.Marshal(data)
+	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("failed to marshal payload: %v", err)
+		return err
 	}
 
 	// Send POST request to Telex's return_url
-	req, err := http.NewRequest("POST", returnURL, bytes.NewBuffer(jsondata))
+	req, err := http.NewRequest("POST", returnURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		return fmt.Errorf("failed to build logs request to Telex: %v", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
+
 	client := &http.Client{}
 	resp, err := client.Do(req)
 
@@ -105,4 +106,5 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 
 	log.Printf("Logs successfully sent to Telex (%s): %v\n", returnURL, logs)
 	return err
+
 }
