@@ -30,7 +30,7 @@ func TickHandler(c *gin.Context) {
 
 	// Parse incoming JSON request
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "error_msg": err.Error()})
 		return
 	}
 
