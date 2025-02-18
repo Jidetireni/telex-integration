@@ -35,7 +35,7 @@ func getIntegrationJSON(c *gin.Context) {
 				{"label": "Interval", "type": "text", "required": true, "default": "*/5 * * * *", "description": "Cron expression defining how often logs are fetched"},
 			},
 			"target_url": "https://telex-integration-production.up.railway.app/fetch-logs",
-			"tick_url":   "https://telex-integration-production.up.railway.app/logs-endpoint",
+			"tick_url":   "",
 		},
 	}
 
