@@ -45,7 +45,8 @@ func getIntegrationJSON(c *gin.Context) {
 				{"label": "Maximum Logs", "type": "number", "required": false, "default": 10, "description": "Maximum number of logs to fetch per interval"},
 				{"label": "Alert Admins", "type": "multi-checkbox", "required": false, "default": []string{"Super-Admin"}, "options": []string{"Super-Admin", "Admin", "Manager", "Developer"}},
 			},
-			"tick_url": "https://telex-integration-production.up.railway.app/fetch-logs",
+			"tick_url":   "https://telex-integration-production.up.railway.app/fetch-logs",
+			"target_url": "https://telex-integration-production.up.railway.app/logs-endpoint",
 		},
 	}
 
