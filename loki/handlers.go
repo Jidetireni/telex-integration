@@ -47,9 +47,6 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	// Immediately respond with 202 Accepted
-	c.JSON(http.StatusAccepted, gin.H{"message": "Request received, processing in background"})
-
 	// Extract settings
 	var lokiURL, query string
 	for _, setting := range reqBody.Settings {
@@ -75,37 +72,37 @@ func TickHandler(c *gin.Context) {
 	endTime := time.Now().UTC()
 	startTime := endTime.Add(-5 * time.Minute)
 
-	// Format time in RFC3339 (ISO 8601)
-	start := startTime.Format(time.RFC3339)
-	end := endTime.Format(time.RFC3339)
-
 	// Send log request to the LogsEndpointHandler via the channel
-	logChan <- LogRequest{
-		LokiURL:   lokiURL,
-		Query:     query,
-		StartTime: start,
-		EndTime:   end,
-		ReturnURL: reqBody.ReturnURL,
-		ChannelID: reqBody.ChannelID,
+	logs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
+	if err != nil {
+		log.Printf("Error fetching logs: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs", "error_msg": err.Error()})
+		return
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"channel_id": reqBody.ChannelID,
+		"return_url": reqBody.ReturnURL,
+		"logs":       logs,
+	})
+
 }
 
 // LogsEndpointHandler fetches logs from Loki when triggered
-func LogsEndpointHandler(c *gin.Context) {
-	// Wait for a log request from the channel
-	req := <-logChan
+// func LogsEndpointHandler(c *gin.Context) {
+// 	// Wait for a log request from the channel
+// 	req := <-logChan
 
-	// Fetch logs from Loki
-	logs, err := utils.FetchLogs(req.LokiURL, req.Query, req.StartTime, req.EndTime)
-	if err != nil {
-		log.Println("Failed to fetch logs from Loki:", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs"})
-		return
-	}
+// 	// Fetch logs from Loki
+// 	logs, err := utils.FetchLogs(req.LokiURL, req.Query, req.StartTime, req.EndTime)
+// 	if err != nil {
+// 		log.Println("Failed to fetch logs from Loki:", err)
+// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs"})
+// 		return
+// 	}
 
-	// Send logs to Telex return_url
-	utils.SendLogsToTelex(req.ReturnURL, logs, req.ChannelID)
+// 	// Send logs to Telex return_url
+// 	utils.SendLogsToTelex(req.ReturnURL, logs, req.ChannelID)
 
-	// Respond to the client
-	c.JSON(http.StatusOK, gin.H{"message": "Logs fetched and sent successfully"})
-}
+// 	// Respond to the client
+// 	c.JSON(http.StatusOK, gin.H{"message": "Logs fetched and sent successfully"})
+// }

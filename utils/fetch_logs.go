@@ -8,49 +8,65 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"time"
 )
 
-// LokiResponse represents the expected response from Loki
+// LokiResponse represents the structure of the response from Loki
 type LokiResponse struct {
-	Data struct {
-		Result []struct {
-			Stream map[string]string `json:"stream"`
-			Values [][]string        `json:"values"` // 2D array of [timestamp, log line]
+	Status string `json:"status"`
+	Data   struct {
+		ResultType string `json:"resultType"`
+		Result     []struct {
+			Stream map[string]string `json:"stream"` // Log labels (e.g., job, app)
+			Values [][]string        `json:"values"` // 2D array: [timestamp, log]
 		} `json:"result"`
 	} `json:"data"`
 }
 
 // FetchLogs queries Loki and returns log entries
-func FetchLogs(lokiURL, query, start, end string) ([]string, error) {
+func FetchLogs(lokiURL, query string, start, end time.Time, limit int) ([]string, error) {
+	// Build query parameters using url.Values
+	params := url.Values{}
+	params.Set("query", query) // LogQL query
+	params.Set("start", fmt.Sprintf("%d", start.UnixNano()))
+	params.Set("end", fmt.Sprintf("%d", end.UnixNano()))
+	params.Set("limit", fmt.Sprintf("%d", limit))
+
 	// Construct Loki query URL with time range
-	lokiQueryURL := fmt.Sprintf("%s/loki/api/v1/query_range?query=%s&start=%s&end=%s&limit=5",
-		lokiURL, url.QueryEscape(query), url.QueryEscape(start), url.QueryEscape(end))
+	reqURL := fmt.Sprintf("%s/loki/api/v1/query_range?%s", lokiURL, params.Encode())
 
 	// Make request to Loki
-	resp, err := http.Get(lokiQueryURL)
+	resp, err := http.Get(reqURL)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("loki query failed with status: %s", resp.Status)
+	}
+
 	// Read and parse response
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read response: %v", err)
 	}
 
 	var lokiResponse LokiResponse
 	if err := json.Unmarshal(body, &lokiResponse); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to parse Loki response: %v", err)
 	}
 
 	// Extract logs
 	var logs []string
 	for _, result := range lokiResponse.Data.Result {
 		for _, value := range result.Values {
-			logs = append(logs, value[1]) // value[1] is the log message
+			timestamp := value[0]
+			logLine := value[1]
+			logs = append(logs, fmt.Sprintf("[%s] %s", timestamp, logLine))
 		}
 	}
+
 	return logs, nil
 }
 
