@@ -85,7 +85,7 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 	}
 
 	// Send POST request to Telex's return_url
-	req, err := http.NewRequest(returnURL, "application/json", bytes.NewBuffer(jsondata))
+	req, err := http.NewRequest("POST", returnURL, bytes.NewBuffer(jsondata))
 	if err != nil {
 		return fmt.Errorf("failed to build logs request to Telex: %v", err)
 	}
