@@ -20,8 +20,8 @@ func getIntegrationJSON(c *gin.Context) {
 				"app_url":          "https://telex-integration-production.up.railway.app",
 				"background_color": "#fff",
 			},
-			"integration_category": "Monitoring & Logging",
 			"is_active":            true,
+			"integration_category": "Monitoring & Logging",
 			"integration_type":     "interval",
 			"key_features": []string{
 				"Fetch logs from Loki at regular intervals",
