@@ -1,0 +1,74 @@
+{
+    "data": {
+      "date": {
+        "created_at": "2025-02-18",
+        "updated_at": "2025-02-18"
+      },
+      "descriptions": {
+        "app_description": "Fetches logs from a Loki server and sends them to a Telex channel at defined intervals.",
+        "app_logo": "https://your-logo-url.com/logo.png",
+        "app_name": "Loki Log Monitor",
+        "app_url": "https://your-service.com",
+        "background_color": "#1F2937"
+      },
+      "integration_category": "Monitoring & Logging",
+      "integration_type": "interval",
+      "is_active": true,
+      "output": [
+        {
+          "label": "log_channel",
+          "value": true
+        }
+      ],
+      "key_features": [
+        "Fetch logs from Loki at regular intervals",
+        "Filter logs based on custom Loki queries",
+        "Send logs to a designated Telex channel",
+        "Monitor specific applications or services"
+      ],
+      "permissions": {
+        "monitoring_user": {
+          "always_online": true,
+          "display_name": "Loki Monitor Bot"
+        }
+      },
+      "settings": [
+        {
+          "label": "Loki Server URL",
+          "type": "text",
+          "required": true,
+          "default": "http://localhost:3100"
+        },
+        {
+          "label": "Loki Query",
+          "type": "text",
+          "required": true,
+          "default": "{job='nginx'}"
+        },
+        {
+          "label": "Interval",
+          "type": "text",
+          "required": true,
+          "default": "*/5 * * * *",
+          "description": "Cron expression defining how often logs are fetched"
+        },
+        {
+          "label": "Maximum Logs",
+          "type": "number",
+          "required": false,
+          "default": 10,
+          "description": "Maximum number of logs to fetch per interval"
+        },
+        {
+          "label": "Alert Admins",
+          "type": "multi-checkbox",
+          "required": false,
+          "default": ["Super-Admin"],
+          "options": ["Super-Admin", "Admin", "Manager", "Developer"]
+        }
+      ],
+      "tick_url": "https://your-service.com/fetch-logs",
+      "target_url": "https://your-service.com/logs-endpoint"
+    }
+  }
+  
