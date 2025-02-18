@@ -91,7 +91,7 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 	}
 	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
+	if resp.StatusCode != http.StatusAccepted {
 		return fmt.Errorf("telex returned non-OK status: %s", resp.Status)
 	}
 
