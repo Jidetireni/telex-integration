@@ -74,7 +74,7 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 	// Convert payload to JSON
 	data := map[string]interface{}{
 		"event_name": "Loki integration",
-		"message":    "logs",
+		"message":    logs[0],
 		"status":     "success",
 		"username":   "tireni",
 	}
