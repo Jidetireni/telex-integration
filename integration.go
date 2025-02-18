@@ -17,7 +17,7 @@ func getIntegrationJSON(c *gin.Context) {
 				"app_description":  "Fetches logs from a Loki server and sends them to a Telex channel at defined intervals.",
 				"app_logo":         "https://grafana.com/media/docs/loki/logo-grafana-loki.png",
 				"app_name":         "Grafana-Loki Integration",
-				"app_url":          "https://telex-integration-production.up.railway.app/integration.json",
+				"app_url":          "https://telex-integration-production.up.railway.app",
 				"background_color": "#fff",
 			},
 			"is_active":            true,
