@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 // LokiResponse represents the expected response from Loki
@@ -20,9 +21,10 @@ type LokiResponse struct {
 }
 
 // FetchLogs queries Loki and returns log entries
-func FetchLogs(lokiURL, query string) ([]string, error) {
-	// Construct Loki query URL
-	lokiQueryURL := fmt.Sprintf("%s/loki/api/v1/query_range?query=%s&limit=5", lokiURL, query)
+func FetchLogs(lokiURL, query, start, end string) ([]string, error) {
+	// Construct Loki query URL with time range
+	lokiQueryURL := fmt.Sprintf("%s/loki/api/v1/query_range?query=%s&start=%s&end=%s&limit=5",
+		lokiURL, url.QueryEscape(query), url.QueryEscape(start), url.QueryEscape(end))
 
 	// Make request to Loki
 	resp, err := http.Get(lokiQueryURL)
@@ -31,27 +33,24 @@ func FetchLogs(lokiURL, query string) ([]string, error) {
 	}
 	defer resp.Body.Close()
 
-	// Read response body
-	body, err := ioutil.ReadAll(resp.Body)
+	// Read and parse response
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
 
-	// Parse Loki response
 	var lokiResponse LokiResponse
-	err = json.Unmarshal(body, &lokiResponse)
-	if err != nil {
+	if err := json.Unmarshal(body, &lokiResponse); err != nil {
 		return nil, err
 	}
 
-	// Extract log messages
+	// Extract logs
 	var logs []string
 	for _, result := range lokiResponse.Data.Result {
 		for _, value := range result.Values {
 			logs = append(logs, value[1]) // value[1] is the log message
 		}
 	}
-
 	return logs, nil
 }
 

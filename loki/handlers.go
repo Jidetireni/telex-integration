@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 	"telex-integration/utils"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -40,21 +41,30 @@ func TickHandler(c *gin.Context) {
 		// Extract settings
 		var lokiURL, query string
 		for _, setting := range reqBody.Settings {
-			if setting.Label == "Loki Server URL" {
+			switch setting.Label {
+			case "Loki Server URL":
 				lokiURL = setting.Default
-			} else if setting.Label == "Loki Query" {
+			case "Loki Query":
 				query = setting.Default
 			}
 		}
 
-		// Validate settings
+		// Validate required settings
 		if lokiURL == "" || query == "" {
-			log.Println("Loki URL or query missing in settings")
+			log.Println("Missing required settings (Loki URL, Query)")
 			return
 		}
 
+		// Get time range (last 5 minutes)
+		endTime := time.Now().UTC()
+		startTime := endTime.Add(-5 * time.Minute)
+
+		// Format time in RFC3339 (ISO 8601)
+		start := startTime.Format(time.RFC3339)
+		end := endTime.Format(time.RFC3339)
+
 		// Fetch logs from Loki
-		logs, err := utils.FetchLogs(lokiURL, query)
+		logs, err := utils.FetchLogs(lokiURL, query, start, end)
 		if err != nil {
 			log.Println("Failed to fetch logs from Loki:", err)
 			return
@@ -63,7 +73,4 @@ func TickHandler(c *gin.Context) {
 		// Send logs to Telex return_url
 		utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
 	}()
-
-	// Respond to Telex
-	c.JSON(http.StatusOK, gin.H{"message": "Logs sent successfully"})
 }
