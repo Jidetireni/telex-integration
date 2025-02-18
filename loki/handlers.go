@@ -18,10 +18,10 @@ type RequestBody struct {
 
 // Setting represents each setting field
 type Setting struct {
-	Label    string `json:"label"`
-	Type     string `json:"type"`
-	Required bool   `json:"required"`
-	Default  string `json:"default"`
+	Label    string      `json:"label"`
+	Type     string      `json:"type"`
+	Required bool        `json:"required"`
+	Default  interface{} `json:"default"` // <-- Supports both string and number
 }
 
 // TickHandler handles POST requests from Telex
@@ -43,9 +43,13 @@ func TickHandler(c *gin.Context) {
 		for _, setting := range reqBody.Settings {
 			switch setting.Label {
 			case "Loki Server URL":
-				lokiURL = setting.Default
+				if url, ok := setting.Default.(string); ok {
+					lokiURL = url
+				}
 			case "Loki Query":
-				query = setting.Default
+				if q, ok := setting.Default.(string); ok {
+					query = q
+				}
 			}
 		}
 
