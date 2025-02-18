@@ -15,9 +15,9 @@ func getIntegrationJSON(c *gin.Context) {
 			},
 			"descriptions": map[string]string{
 				"app_description":  "Fetches logs from a Loki server and sends them to a Telex channel at defined intervals.",
-				"app_logo":         "https://your-logo-url.com/logo.png",
+				"app_logo":         "",
 				"app_name":         "Grafana-Loki Integration",
-				"app_url":          "https://your-service.com",
+				"app_url":          "https://telex-integration-production.up.railway.app/",
 				"background_color": "#1F2937",
 			},
 			"integration_category": "Monitoring & Logging",
@@ -45,8 +45,7 @@ func getIntegrationJSON(c *gin.Context) {
 				{"label": "Maximum Logs", "type": "number", "required": false, "default": 10, "description": "Maximum number of logs to fetch per interval"},
 				{"label": "Alert Admins", "type": "multi-checkbox", "required": false, "default": []string{"Super-Admin"}, "options": []string{"Super-Admin", "Admin", "Manager", "Developer"}},
 			},
-			"tick_url":   "https://your-service.com/fetch-logs",
-			"target_url": "https://your-service.com/logs-endpoint",
+			"tick_url": "https://telex-integration-production.up.railway.app/fetch-logs",
 		},
 	}
 
