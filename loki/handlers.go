@@ -77,7 +77,12 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
+	err = utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
+	if err != nil {
+		log.Printf("Error sending logs to telex: %v", err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending logs to telex:", "error_msg": err.Error()})
+		return
+	}
 
 	c.JSON(http.StatusOK, gin.H{
 		"channel_id": reqBody.ChannelID,
