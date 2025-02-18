@@ -35,8 +35,8 @@ func getIntegrationJSON(c *gin.Context) {
 				{"label": "Loki Query", "type": "text", "required": true, "default": "{job='varlogs'}"},
 				{"label": "Interval", "type": "text", "required": true, "default": "*/5 * * * *", "description": "Cron expression defining how often logs are fetched"},
 			},
-			"target_url": "https://telex-integration-production.up.railway.app/tick",
-			"tick_url":   "",
+			"tick_url":   "https://telex-integration-production.up.railway.app/tick",
+			"target_url": "",
 		},
 	}
 
