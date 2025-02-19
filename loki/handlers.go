@@ -34,6 +34,10 @@ type Setting struct {
 	Default  interface{} `json:"default"` // <-- Supports both string and number
 }
 
+func (r *RequestBody) ReturnUrl() string {
+	return r.ReturnURL
+}
+
 // TickHandler handles POST requests from Telex
 func TickHandler(c *gin.Context) {
 	var reqBody RequestBody

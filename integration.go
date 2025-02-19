@@ -2,9 +2,12 @@ package main
 
 import (
 	"net/http"
+	"telex-integration/loki"
 
 	"github.com/gin-gonic/gin"
 )
+
+var reqBody loki.RequestBody
 
 func getIntegrationJSON(c *gin.Context) {
 	integrationJSON := map[string]interface{}{
@@ -43,7 +46,7 @@ func getIntegrationJSON(c *gin.Context) {
 				{"label": "Interval", "type": "text", "required": true, "default": "*/5 * * * *", "description": "Cron expression defining how often logs are fetched"},
 			},
 			"tick_url":   "https://telex-integration.onrender.com/tick",
-			"target_url": "",
+			"target_url": reqBody.ReturnUrl(),
 		},
 	}
 
