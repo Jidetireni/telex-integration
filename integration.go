@@ -40,6 +40,7 @@ func getIntegrationJSON(c *gin.Context) {
 					"display_name":  "Loki Monitor",
 				},
 			},
+
 			"settings": []map[string]interface{}{
 				{"label": "Loki Server URL", "type": "text", "required": true, "default": "http://34.229.14.54:3100"},
 				{"label": "Loki Query", "type": "text", "required": true, "default": "{job=\"varlogs\"}"},
