@@ -83,7 +83,7 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	telex_url := os.Getenv("TELEX_WEBHOOK")
+	telex_url := os.Getenv("WEBHOOK_URL")
 	telex_response, err := utils.SendLogsToTelex(telex_url, logs, reqBody.ChannelID)
 	if err != nil {
 		log.Printf("Error sending logs to telex: %v", err)

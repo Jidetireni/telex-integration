@@ -1,4 +1,4 @@
-POST https://telex-integration-production.up.railway.app/tick/
+POST https://telex-integration.onrender.com/tick
 Content-Type: application/json
 
 {
