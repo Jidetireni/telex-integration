@@ -15,7 +15,7 @@ func main() {
 		AllowHeaders: []string{"Content-Type", "Authorization"},
 	}))
 	r.GET("/integration.json", getIntegrationJSON)
-	r.POST("/tick/", loki.TickHandler)
+	r.POST("/tick", loki.TickHandler)
 	// r.GET("/logs-endpoint", loki.LogsEndpointHandler)
 
 	r.Run(":8080") // Runs on http://localhost:8080

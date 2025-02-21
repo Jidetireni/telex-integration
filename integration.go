@@ -2,7 +2,6 @@ package main
 
 import (
 	"net/http"
-	"telex-integration/loki"
 
 	"github.com/gin-gonic/gin"
 )
@@ -52,8 +51,8 @@ func getIntegrationJSON(c *gin.Context) {
 				// {"label": "Sensitivity Level", "type": "dropdown", "required": true, "default": "Low", "options": []string{"High", "Low"}},
 				// {"label": "Alert Admin", "type": "multi-checkbox", "required": true, "default": "Super-Admin", "options": []string{"Super-Admin", "Admin", "Manager", "Developer"}},
 			},
-			"tick_url":   "https://telex-integration.onrender.com/tick/",
-			"target_url": loki.LatestReturnURL,
+			"tick_url":   "https://telex-integration.onrender.com/tick",
+			"target_url": "https://ping.telex.im/v1/webhooks/019527af-f248-7e03-b2fc-bed0265814a7",
 		},
 	}
 

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -70,7 +71,7 @@ func FetchLogs(lokiURL, query string, start, end time.Time, limit int) ([]string
 	return logs, nil
 }
 
-func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
+func SendLogsToTelex(returnURL string, logs []string, channelID string) (string, error) {
 	// Convert payload to JSON
 	data := map[string]interface{}{
 		"event_name": "Loki integration",
@@ -81,13 +82,13 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// Send POST request to Telex's return_url
 	req, err := http.NewRequest("POST", returnURL, bytes.NewBuffer(jsonData))
 	if err != nil {
-		return fmt.Errorf("failed to build logs request to Telex: %v", err)
+		return "", fmt.Errorf("failed to build logs request to Telex: %v", err)
 	}
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("Content-Type", "application/json")
@@ -96,15 +97,20 @@ func SendLogsToTelex(returnURL string, logs []string, channelID string) error {
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return fmt.Errorf("failed to send logs to Telex: %v", err)
+		return "", fmt.Errorf("failed to send logs to Telex: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusAccepted {
-		return fmt.Errorf("telex returned non-OK status: %s", resp.Status)
+		return "", fmt.Errorf("telex returned non-OK status: %s", resp.Status)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("error reading response: %v", err)
 	}
 
 	log.Printf("Logs successfully sent to Telex (%s): %v\n", returnURL, logs)
-	return err
+	return string(body), err
 
 }

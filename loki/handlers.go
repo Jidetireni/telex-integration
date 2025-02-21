@@ -1,8 +1,10 @@
 package loki
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"telex-integration/utils"
 	"time"
 
@@ -43,7 +45,7 @@ func TickHandler(c *gin.Context) {
 	// Parse incoming JSON request
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "error_msg": err.Error()})
-		return
+
 	}
 
 	LatestReturnURL = reqBody.ReturnURL
@@ -81,17 +83,20 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	err = utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
+	telex_url := os.Getenv("TELEX_WEBHOOK")
+	telex_response, err := utils.SendLogsToTelex(telex_url, logs, reqBody.ChannelID)
 	if err != nil {
 		log.Printf("Error sending logs to telex: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending logs to telex:", "error_msg": err.Error()})
 		return
 	}
+	fmt.Println(telex_response)
 
 	c.JSON(http.StatusOK, gin.H{
-		"channel_id": reqBody.ChannelID,
-		"return_url": reqBody.ReturnURL,
-		"logs":       logs,
+		"channel_id":    reqBody.ChannelID,
+		"return_url":    reqBody.ReturnURL,
+		"logs":          logs,
+		"telex_reponse": telex_response,
 	})
 
 }
