@@ -42,9 +42,10 @@ func getIntegrationJSON(c *gin.Context) {
 			},
 
 			"settings": []map[string]interface{}{
+				{"label": "Interval", "type": "text", "required": true, "default": "* * * * *"},
 				{"label": "Loki Server URL", "type": "text", "required": true, "default": "http://100.27.210.53:3100"},
 				{"label": "Loki Query", "type": "text", "required": true, "default": "{job=\"varlogs\"}"},
-				{"label": "Interval", "type": "text", "required": true, "default": "* * * * *"},
+
 				// {"label": "Key", "type": "text", "required": true, "default": "1234567890"},
 				// {"label": "Do you want to continue", "type": "checkbox", "required": true, "default": "Yes"},
 				// {"label": "Provide Speed", "type": "number", "required": true, "default": "1000"},
