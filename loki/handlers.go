@@ -83,8 +83,8 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	telex_url := os.Getenv("WEBHOOK_URL")
-	telex_response, err := utils.SendLogsToTelex(telex_url, logs, reqBody.ChannelID)
+	_ = os.Getenv("WEBHOOK_URL")
+	telex_response, err := utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
 	if err != nil {
 		log.Printf("Error sending logs to telex: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending logs to telex:", "error_msg": err.Error()})
