@@ -70,7 +70,7 @@ func FetchLogs(lokiURL, query string, start, end time.Time, limit int) ([]string
 	return logs, nil
 }
 
-func SendLogsToTelex(returnURL string, data map[string]string) (string, error) {
+func SendLogsToTelex(returnURL string, data map[string]interface{}) (string, error) {
 	// Convert payload to JSON
 	jsonData, err := json.Marshal(data)
 	if err != nil {

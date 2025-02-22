@@ -103,7 +103,7 @@ func TickHandler(c *gin.Context) {
 
 	// Send logs to Telex
 	logMessage := strings.Join(logs, "\n")
-	data := map[string]string{
+	data := map[string]interface{}{
 		"event_name": "Loki integration",
 		"message":    logMessage,
 		"status":     "success",
