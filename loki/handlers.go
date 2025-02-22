@@ -1,7 +1,6 @@
 package loki
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"telex-integration/utils"
@@ -35,8 +34,6 @@ type Setting struct {
 	Default  interface{} `json:"default"` // <-- Supports both string and number
 }
 
-var LatestReturnURL string
-
 // TickHandler handles POST requests from Telex
 func TickHandler(c *gin.Context) {
 	var reqBody RequestBody
@@ -46,8 +43,6 @@ func TickHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "error_msg": err.Error()})
 
 	}
-
-	LatestReturnURL = reqBody.ReturnURL
 
 	// Extract settings
 	var lokiURL, query string
@@ -67,54 +62,34 @@ func TickHandler(c *gin.Context) {
 	// Validate required settings
 	if lokiURL == "" || query == "" {
 		log.Println("Missing required settings (Loki URL, Query)")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required settings"})
 		return
 	}
 
-	// Get time range (last 5 minutes)
-	endTime := time.Now().UTC()
-	startTime := endTime.Add(-5 * time.Minute)
+	// **Send HTTP 202 Accepted BEFORE starting Goroutine**
+	c.JSON(http.StatusAccepted, gin.H{"message": "Processing in background", "channel_id": reqBody.ChannelID})
 
-	// Send log request to the LogsEndpointHandler via the channel
-	logs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
-	if err != nil {
-		log.Printf("Error fetching logs: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs", "error_msg": err.Error()})
-		return
-	}
+	// Process logs in the background
+	go func() {
+		// Get time range (last 5 minutes)
+		endTime := time.Now().UTC()
+		startTime := endTime.Add(-5 * time.Minute)
 
-	telex_response, err := utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
-	if err != nil {
-		log.Printf("Error sending logs to telex: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error sending logs to telex:", "error_msg": err.Error()})
-		return
-	}
-	fmt.Println(telex_response)
+		// Fetch logs from Loki
+		logs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
+		if err != nil {
+			log.Printf("Error fetching logs: %v", err)
+			return
+		}
 
-	c.JSON(http.StatusOK, gin.H{
-		"channel_id":    reqBody.ChannelID,
-		"return_url":    reqBody.ReturnURL,
-		"logs":          logs,
-		"telex_reponse": telex_response,
-	})
+		// Send logs to Telex
+		telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
+		if err != nil {
+			log.Printf("Error sending logs to Telex: %v", err)
+			return
+		}
 
+		// Log success (No `c.JSON()` here since response is already sent)
+		log.Printf("Successfully processed logs for Channel ID %s. Telex Response: %v", reqBody.ChannelID, telexResponse)
+	}()
 }
-
-// LogsEndpointHandler fetches logs from Loki when triggered
-// func LogsEndpointHandler(c *gin.Context) {
-// 	// Wait for a log request from the channel
-// 	req := <-logChan
-
-// 	// Fetch logs from Loki
-// 	logs, err := utils.FetchLogs(req.LokiURL, req.Query, req.StartTime, req.EndTime)
-// 	if err != nil {
-// 		log.Println("Failed to fetch logs from Loki:", err)
-// 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch logs"})
-// 		return
-// 	}
-
-// 	// Send logs to Telex return_url
-// 	utils.SendLogsToTelex(req.ReturnURL, logs, req.ChannelID)
-
-// 	// Respond to the client
-// 	c.JSON(http.StatusOK, gin.H{"message": "Logs fetched and sent successfully"})
-// }
