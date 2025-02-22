@@ -1,6 +1,7 @@
 package main
 
 import (
+	"telex-integration/config"
 	"telex-integration/loki"
 
 	"github.com/gin-contrib/cors"
@@ -14,7 +15,7 @@ func main() {
 		AllowMethods: []string{"GET", "POST"},
 		AllowHeaders: []string{"Content-Type", "Authorization"},
 	}))
-	r.GET("/integration.json", getIntegrationJSON)
+	r.GET("/integration.json", config.GetIntegrationJSON)
 	r.POST("/tick", loki.TickHandler)
 	r.GET("/tick", loki.TickHandler)
 

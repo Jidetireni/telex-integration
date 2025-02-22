@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"net/http"
@@ -58,7 +58,7 @@ type Response struct {
 }
 
 // getIntegrationJSON handles the request and sends the structured JSON response
-func getIntegrationJSON(c *gin.Context) {
+func GetIntegrationJSON(c *gin.Context) {
 	response := Response{
 		Data: Data{
 			Date: Date{
@@ -87,7 +87,7 @@ func getIntegrationJSON(c *gin.Context) {
 			Settings: []Setting{
 				{"loki Server URL", "text", true, "http://100.27.210.53:3100"},
 				{"loki Query", "text", true, "{job=\"varlogs\"}"},
-				{"interval", "text", true, "2 * * * *"},
+				{"interval", "text", true, "*/2 * * * *"},
 			},
 			TickURL:   "https://telex-integration.onrender.com/tick",
 			TargetURL: "",

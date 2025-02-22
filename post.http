@@ -2,8 +2,8 @@ POST https://telex-integration.onrender.com/tick
 Content-Type: application/json
 
 {
-    "channel_id": "019527af-f248-7e03-b2fc-bed0265814a7",
-    "return_url": "https://ping.telex.im/v1/webhooks/019527af-f248-7e03-b2fc-bed0265814a7",
+    "channel_id": "01952e92-8ab0-7c08-9df4-dbaa1f4d6c9d",
+    "return_url": "https://ping.telex.im/v1/webhooks/01952e92-8ab0-7c08-9df4-dbaa1f4d6c9d",
     "settings": [
         {
             "default": "http://100.27.210.53:3100",
