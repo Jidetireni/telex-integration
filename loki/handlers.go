@@ -73,9 +73,6 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	// Respond immediately (processing in the background)
-	c.JSON(http.StatusAccepted, gin.H{"message": "Processing in background", "channel_id": reqBody.ChannelID})
-
 	// Using WaitGroup to manage goroutine
 	var wg sync.WaitGroup
 	var logs []string
