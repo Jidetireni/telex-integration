@@ -1,8 +1,10 @@
 package loki
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"sync"
 	"telex-integration/utils"
 	"time"
 
@@ -34,6 +36,8 @@ type Setting struct {
 	Default  interface{} `json:"default"` // <-- Supports both string and number
 }
 
+var LatestReturnURL string
+
 // TickHandler handles POST requests from Telex
 func TickHandler(c *gin.Context) {
 	var reqBody RequestBody
@@ -41,8 +45,10 @@ func TickHandler(c *gin.Context) {
 	// Parse incoming JSON request
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "error_msg": err.Error()})
-
+		return
 	}
+
+	LatestReturnURL = reqBody.ReturnURL
 
 	// Extract settings
 	var lokiURL, query string
@@ -61,35 +67,55 @@ func TickHandler(c *gin.Context) {
 
 	// Validate required settings
 	if lokiURL == "" || query == "" {
-		log.Println("Missing required settings (Loki URL, Query)")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing required settings"})
+		log.Println("❌ Missing required settings (Loki URL, Query)")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing Loki URL or Query"})
 		return
 	}
 
-	// **Send HTTP 202 Accepted BEFORE starting Goroutine**
+	// Respond immediately (processing in the background)
 	c.JSON(http.StatusAccepted, gin.H{"message": "Processing in background", "channel_id": reqBody.ChannelID})
 
-	// Process logs in the background
+	// Using WaitGroup to manage goroutine
+	var wg sync.WaitGroup
+	var logs []string
+	var mu sync.Mutex // Mutex for safe concurrent access to logs slice
+
+	wg.Add(1)
 	go func() {
-		// Get time range (last 5 minutes)
+		defer wg.Done()
+
 		endTime := time.Now().UTC()
 		startTime := endTime.Add(-5 * time.Minute)
 
-		// Fetch logs from Loki
-		logs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
+		// Fetch logs
+		fetchedLogs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
 		if err != nil {
-			log.Printf("Error fetching logs: %v", err)
+			log.Printf("❌ Error fetching logs: %v", err)
 			return
 		}
 
-		// Send logs to Telex
-		telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
-		if err != nil {
-			log.Printf("Error sending logs to Telex: %v", err)
-			return
-		}
-
-		// Log success (No `c.JSON()` here since response is already sent)
-		log.Printf("Successfully processed logs for Channel ID %s. Telex Response: %v", reqBody.ChannelID, telexResponse)
+		// Protect shared slice with a mutex
+		mu.Lock()
+		logs = append(logs, fetchedLogs...)
+		mu.Unlock()
 	}()
+
+	// Wait for goroutine to finish
+	wg.Wait()
+
+	// Send logs to Telex
+	telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	// Print successful response for debugging
+	fmt.Println("✅ Logs sent to Telex:", telexResponse)
+	c.JSON(http.StatusOK, gin.H{
+		"channel_id":    reqBody.ChannelID,
+		"return_url":    reqBody.ReturnURL,
+		"logs":          logs,
+		"telex_reponse": telexResponse,
+	})
 }
