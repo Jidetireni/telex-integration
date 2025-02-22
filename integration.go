@@ -36,9 +36,9 @@ func getIntegrationJSON(c *gin.Context) {
 
 			"author": "Tireni",
 			"settings": []map[string]interface{}{
-				{"label": "Interval", "type": "text", "required": true, "default": "5 * * * * "},
 				{"label": "Loki Server URL", "type": "text", "required": true, "default": "http://100.27.210.53:3100"},
 				{"label": "Loki Query", "type": "text", "required": true, "default": "{job=\"varlogs\"}"},
+				{"label": "interval", "type": "text", "required": true, "default": "2 * * * * "},
 			},
 			"tick_url":   "https://telex-integration.onrender.com/tick",
 			"target_url": "",
