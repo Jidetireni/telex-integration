@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"telex-integration/utils"
 	"time"
 
@@ -83,7 +82,6 @@ func TickHandler(c *gin.Context) {
 		return
 	}
 
-	_ = os.Getenv("WEBHOOK_URL")
 	telex_response, err := utils.SendLogsToTelex(reqBody.ReturnURL, logs, reqBody.ChannelID)
 	if err != nil {
 		log.Printf("Error sending logs to telex: %v", err)

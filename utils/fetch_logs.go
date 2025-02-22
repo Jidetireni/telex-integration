@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 )
 
@@ -73,9 +74,10 @@ func FetchLogs(lokiURL, query string, start, end time.Time, limit int) ([]string
 
 func SendLogsToTelex(returnURL string, logs []string, channelID string) (string, error) {
 	// Convert payload to JSON
+	logMessage := strings.Join(logs, "\n")
 	data := map[string]interface{}{
 		"event_name": "Loki integration",
-		"message":    logs[0],
+		"message":    logMessage,
 		"status":     "success",
 		"username":   "tireni",
 	}

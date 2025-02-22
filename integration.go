@@ -33,26 +33,15 @@ func getIntegrationJSON(c *gin.Context) {
 				"Send logs to a designated Telex channel",
 				"Monitor specific applications or services",
 			},
-			"permissions": map[string]map[string]interface{}{
-				"monitoring_user": {
-					"always_online": true,
-					"display_name":  "Loki Monitor",
-				},
-			},
 
+			"author": "Tireni",
 			"settings": []map[string]interface{}{
-				{"label": "Interval", "type": "text", "required": true, "default": "* * * * *"},
+				{"label": "Interval", "type": "text", "required": true, "default": "5 * * * * "},
 				{"label": "Loki Server URL", "type": "text", "required": true, "default": "http://100.27.210.53:3100"},
 				{"label": "Loki Query", "type": "text", "required": true, "default": "{job=\"varlogs\"}"},
-
-				// {"label": "Key", "type": "text", "required": true, "default": "1234567890"},
-				// {"label": "Do you want to continue", "type": "checkbox", "required": true, "default": "Yes"},
-				// {"label": "Provide Speed", "type": "number", "required": true, "default": "1000"},
-				// {"label": "Sensitivity Level", "type": "dropdown", "required": true, "default": "Low", "options": []string{"High", "Low"}},
-				// {"label": "Alert Admin", "type": "multi-checkbox", "required": true, "default": "Super-Admin", "options": []string{"Super-Admin", "Admin", "Manager", "Developer"}},
 			},
 			"tick_url":   "https://telex-integration.onrender.com/tick",
-			"target_url": "https://ping.telex.im/v1/webhooks/019527af-f248-7e03-b2fc-bed0265814a7",
+			"target_url": "",
 		},
 	}
 
