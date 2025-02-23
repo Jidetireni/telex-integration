@@ -2,6 +2,7 @@ package loki
 
 import (
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -49,6 +50,12 @@ func TickHandler(c *gin.Context) {
 		log.Println("❌ Invalid request format:", err)
 
 	}
+
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		log.Println("unable to read request body")
+	}
+	log.Printf("Request Body: %s", string(body))
 
 	log.Println(reqBody)
 
