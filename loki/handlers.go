@@ -5,7 +5,6 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 	"sync"
 	"telex-integration/utils"
@@ -65,11 +64,11 @@ func TickHandler(c *gin.Context) {
 	var lokiURL, query string
 	for _, setting := range reqBody.Settings {
 		switch setting.Label {
-		case "Loki Server URL":
+		case "loki Server URL":
 			if url, ok := setting.Default.(string); ok {
 				lokiURL = url
 			}
-		case "Loki Query":
+		case "loki Query":
 			if q, ok := setting.Default.(string); ok {
 				query = q
 			}
@@ -94,9 +93,9 @@ func TickHandler(c *gin.Context) {
 		startTime := endTime.Add(-5 * time.Minute)
 
 		// Fetch logs
-		lokiUrl := "http://100.27.210.53:3100"
-		queryy := "{job=\"varlogs\"}"
-		fetchedLogs, err := utils.FetchLogs(lokiUrl, queryy, startTime, endTime, 10)
+		// lokiUrl := "http://100.27.210.53:3100"
+		// queryy := "{job=\"varlogs\"}"
+		fetchedLogs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
 		if err != nil {
 			log.Printf("❌ Error fetching logs: %v", err)
 
@@ -120,8 +119,8 @@ func TickHandler(c *gin.Context) {
 		"username":   "Loki integration",
 	}
 
-	telex_url := os.Getenv("WEBHOOK_URL")
-	telexResponse, err := utils.SendLogsToTelex(telex_url, data)
+	// telex_url := os.Getenv("WEBHOOK_URL")
+	telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, data)
 	if err != nil {
 		log.Println("❌ Error sending logs to Telex:", err)
 
