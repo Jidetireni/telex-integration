@@ -46,9 +46,11 @@ func TickHandler(c *gin.Context) {
 
 	// Parse incoming JSON request
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "error_msg": err.Error()})
+		log.Println("❌ Invalid request format:", err)
 
 	}
+
+	log.Println(reqBody)
 
 	LatestReturnURL = reqBody.ReturnURL
 
@@ -70,8 +72,6 @@ func TickHandler(c *gin.Context) {
 	// Validate required settings
 	if lokiURL == "" || query == "" {
 		log.Println("❌ Missing required settings (Loki URL, Query)")
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing Loki URL or Query"})
-
 	}
 
 	// Using WaitGroup to manage goroutine
@@ -116,7 +116,7 @@ func TickHandler(c *gin.Context) {
 	telex_url := os.Getenv("WEBHOOK_URL")
 	telexResponse, err := utils.SendLogsToTelex(telex_url, data)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		log.Println("❌ Error sending logs to Telex:", err)
 
 	}
 
