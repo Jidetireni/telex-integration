@@ -89,7 +89,7 @@ func TickHandler(c *gin.Context) {
 		fetchedLogs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
 		if err != nil {
 			log.Printf("❌ Error fetching logs: %v", err)
-			return
+
 		}
 
 		// Protect shared slice with a mutex
@@ -113,7 +113,7 @@ func TickHandler(c *gin.Context) {
 	telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
+
 	}
 
 	// Print successful response for debugging
