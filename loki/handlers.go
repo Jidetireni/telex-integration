@@ -46,7 +46,7 @@ func TickHandler(c *gin.Context) {
 	// Parse incoming JSON request
 	if err := c.ShouldBindJSON(&reqBody); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request format", "error_msg": err.Error()})
-		return
+
 	}
 
 	LatestReturnURL = reqBody.ReturnURL
@@ -70,7 +70,7 @@ func TickHandler(c *gin.Context) {
 	if lokiURL == "" || query == "" {
 		log.Println("❌ Missing required settings (Loki URL, Query)")
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing Loki URL or Query"})
-		return
+
 	}
 
 	// Using WaitGroup to manage goroutine
