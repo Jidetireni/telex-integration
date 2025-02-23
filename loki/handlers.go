@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 	"sync"
 	"telex-integration/utils"
@@ -112,7 +113,8 @@ func TickHandler(c *gin.Context) {
 		"username":   "Loki integration",
 	}
 
-	telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, data)
+	telex_url := os.Getenv("WEBHOOK_URL")
+	telexResponse, err := utils.SendLogsToTelex(telex_url, data)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 
