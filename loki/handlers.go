@@ -104,10 +104,10 @@ func TickHandler(c *gin.Context) {
 	// Send logs to Telex
 	logMessage := strings.Join(logs, "\n")
 	data := map[string]interface{}{
-		"event_name": "Loki integration",
+		"event_name": "loki_integration_event",
 		"message":    logMessage,
 		"status":     "success",
-		"username":   "tireni",
+		"username":   "Loki integration",
 	}
 
 	telexResponse, err := utils.SendLogsToTelex(reqBody.ReturnURL, data)
