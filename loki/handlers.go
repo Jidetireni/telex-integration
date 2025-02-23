@@ -86,7 +86,9 @@ func TickHandler(c *gin.Context) {
 		startTime := endTime.Add(-5 * time.Minute)
 
 		// Fetch logs
-		fetchedLogs, err := utils.FetchLogs(lokiURL, query, startTime, endTime, 10)
+		lokiUrl := "http://100.27.210.53:3100"
+		queryy := "{job=\"varlogs\"}"
+		fetchedLogs, err := utils.FetchLogs(lokiUrl, queryy, startTime, endTime, 10)
 		if err != nil {
 			log.Printf("❌ Error fetching logs: %v", err)
 
